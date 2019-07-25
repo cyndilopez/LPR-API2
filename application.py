@@ -20,44 +20,49 @@ def index():
 
 @application.route('/detect')
 def detect():
-    def get_s3_client():
-        print(S3_KEY)
-        print(S3_SECRET)
-        if S3_KEY and S3_SECRET:
-            print("returning boto3 client")
-            return boto3.client(
-                's3',
-                'us-west-2',
-                aws_access_key_id = S3_KEY,
-                aws_secret_access_key = S3_SECRET
-            )
-        else:
-            return boto3.client('s3')
+    # def get_s3_client():
 
-    s3 = get_s3_client()
-    bucket = S3_BUCKET 
+    #     if S3_KEY and S3_SECRET:
+    #         print("returning boto3 client")
+    #         return boto3.client(
+    #             's3',
+    #             'us-west-2',
+    #             aws_access_key_id = S3_KEY,
+    #             aws_secret_access_key = S3_SECRET
+    #         )
+    #     else:
+    #         return boto3.client('s3')
 
-    file = s3.get_object(Bucket=bucket, Key='image.png')
+    # s3 = get_s3_client()
+    # bucket = S3_BUCKET 
+
+    # file = s3.get_object(Bucket=bucket, Key='image.png')
     
-    response = flask.Response(file['Body'].read(),
-                        mimetype='image/gif')
-    print(response)
-    print(flask.make_response(file['Body'].read()))
+    # response = flask.Response(file['Body'].read(),
+    #                     mimetype='image/gif')
+    # print(file['Body'])
 
-    tmp = tempfile.NamedTemporaryFile()
-    with open(tmp.name, 'wb') as f:
-        s3.download_fileobj(bucket,'image.png', f)
-        img=mpimg.imread(tmp.name)
-        im = cv2.imread(tmp.name)
-        print(img)
-        print(im)
+    # tmp = tempfile.NamedTemporaryFile()
+    # with open(tmp.name, 'wb') as f:
+    #     s3.download_fileobj(bucket,'image.png', f)
+    #     print(f)
+    #     print(tmp.name)
+    #     img=mpimg.imread(tmp.name)
+    #     im = cv2.imread(tmp.name)
+    #     print(img)
+    #     print(im)
     
+    # print("temp ", tmp.name)
 
     # IMAGE_PATH = '/Users/cylopez/Documents/projects/license-plate-recognition/us/us3.jpg'
 
-    # # data_des = return_data_openalpr(IMAGE_PATH)
-    
-    
+    # data_des = return_data_openalpr(tmp.name)
+    # data_des = return_data_openalpr(IMAGE_PATH)
+    data_des = {
+        'coordinates': [{'y': 209, 'x': 207}, {'y': 212, 'x': 296}, {'y': 258, 'x': 296}, {'y': 255, 'x': 207}], 
+        'state': 'il', 
+        'plate': '9185914'
+        }
     # # min_xcoord, min_ycoord, max_xcoord, max_ycoord = get_coord(data_des)   
     # min_xcoord, min_ycoord, max_xcoord, max_ycoord = 207, 209, 258, 296
     # img = cv2.imread(IMAGE_PATH)
@@ -85,9 +90,10 @@ def detect():
     #         resized_image = cv2.resize(img_crop,(34,85))
     #         # feed in image to machine learning model
     
-    data = {"ok": True,
-            "status": 201}
-    return flask.jsonify(data )
+    data = {"plate": data_des["plate"],
+            "state": data_des["state"]}
+
+    return flask.jsonify(data)
 
 @application.route("/predict", methods=["POST"])
 def predict():

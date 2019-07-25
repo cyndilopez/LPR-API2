@@ -2,7 +2,8 @@ import cv2
 import requests
 import json
 import matplotlib.pyplot as plt
-
+import base64
+from config import OPENALPR_SECRET_KEY
 def clean_data_results(data):
         des_data = {
             'coordinates': data["coordinates"],
@@ -28,16 +29,16 @@ def verifySize(th, contour, img_height):
         return False
 
 def return_data_openalpr(IMAGE_PATH):
-    SECRET_KEY = 'sk_60d0a62e60f04bf6bd5b1458'
 
     with open(IMAGE_PATH, 'rb') as image_file:
         img_base64 = base64.b64encode(image_file.read())
 
-    url = 'https://api.openalpr.com/v2/recognize_bytes?recognize_vehicle=1&country=us&secret_key=%s' % (SECRET_KEY)
+    url = 'https://api.openalpr.com/v2/recognize_bytes?recognize_vehicle=1&country=us&secret_key=%s' % (OPENALPR_SECRET_KEY)
     r = requests.post(url, data = img_base64)
 
     # print(json.dumps(r.json(), indent=2))
     data = json.loads(r.text)
+    print(data)
     data_des = clean_data_results(data["results"][0])
     print("data list ", data_des)
     return data_des
