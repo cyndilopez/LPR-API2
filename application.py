@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import flask
 from PIL import Image
 import cv2
@@ -11,6 +11,7 @@ import tempfile
 import numpy as np
 from keras.preprocessing import image
 from zeep import Client
+
 
 application = Flask(__name__)
 
@@ -55,17 +56,18 @@ def detect():
     
     # print("temp ", tmp.name)
 
-    IMAGE_PATH = '/Users/cylopez/Documents/projects/license-plate-recognition/us/us3.jpg'
-
+    # IMAGE_PATH = '/Users/cylopez/Documents/projects/license-plate-recognition/us/us3.jpg'
+    # IMAGE_PATH = '/Users/cylopez/Documents/projects/license-plate-recognition/plates_mania_lp/california/extracted.png/image_2_20.png'
+    IMAGE_PATH = '/Users/cylopez/Documents/projects/license-plate-recognition/plates_mania_lp/california/openalpr1/6VOA608ca.png'
     # data_des = return_data_openalpr(tmp.name)
-    # data_des = return_data_openalpr(IMAGE_PATH)
-    data_des = {
-        'coordinates': [{'y': 209, 'x': 207}, {'y': 212, 'x': 296}, {'y': 258, 'x': 296}, {'y': 255, 'x': 207}], 
-        'state': 'il', 
-        'plate': '9185914'
-        }
-    # min_xcoord, min_ycoord, max_xcoord, max_ycoord = get_coord(data_des)   
-    min_xcoord, min_ycoord, max_xcoord, max_ycoord = 207, 209, 258, 296
+    data_des = return_data_openalpr(IMAGE_PATH)
+    # data_des = {
+    #     'coordinates': [{'y': 209, 'x': 207}, {'y': 212, 'x': 296}, {'y': 258, 'x': 296}, {'y': 255, 'x': 207}], 
+    #     'state': 'il', 
+    #     'plate': '9185914'
+    #     }
+    min_xcoord, min_ycoord, max_xcoord, max_ycoord = get_coord(data_des)   
+    # min_xcoord, min_ycoord, max_xcoord, max_ycoord = 207, 209, 258, 296
     img = cv2.imread(IMAGE_PATH)
     img_crop = img[int(min_ycoord):int(max_ycoord),int(min_xcoord):int(max_xcoord)]
     height_img_crop = max_ycoord - min_ycoord
@@ -85,6 +87,7 @@ def detect():
     contour_num = 0
     x_locations = []
     pred_chars = {}
+    print(len(contours_after_size_verification))
     for contour in contours_after_size_verification:
             x, y, w, h = cv2.boundingRect(contour)
             paddingw = int(w/3)
@@ -98,34 +101,37 @@ def detect():
             img = np.expand_dims(img, axis = 0)
             print(img.shape)
 
-            # feed in image to machine learning model
-            model = load_model_p()
-            model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    #         # feed in image to machine learning model
+    #         model = load_model_p()
+    #         model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
-            #predict the result
-            result = model.predict(img)
-            predictions = np.argmax(result, axis=1) #in an array
-            character = list(CATEGORIES.keys())[list(CATEGORIES.values()).index(predictions[0])]
-            print(character)      
-            pred_chars[character] = x  
+    #         #predict the result
+    #         result = model.predict(img)
+    #         predictions = np.argmax(result, axis=1) #in an array
+    #         character = list(CATEGORIES.keys())[list(CATEGORIES.values()).index(predictions[0])]
+    #         print(character)      
+    #         pred_chars[character] = x  
+    #         contour_num += 1
             
-    print(pred_chars)
-    sorted_chars = sorted(pred_chars.items(), key=lambda kv: kv[1])
-    pred_plate = [j[0] for j in sorted_chars]
-    pred_plate = ''.join(pred_plate)
+    # print(pred_chars)
+    # sorted_chars = sorted(pred_chars.items(), key=lambda kv: kv[1])
+    # pred_plate = [j[0] for j in sorted_chars]
+    # pred_plate = ''.join(pred_plate)
+    pred_plate=""
     data = {"plate": data_des["plate"],
             "state": data_des["state"],
             "predicted": pred_plate}
 
     return flask.jsonify(data)
 
-# @application.route("/predict", methods=["POST"])
-@application.route("/predict")
-
+# @application.route("/predict")
+@application.route("/predict", methods=["POST"])
 def predict():
+    content=request.json
+    plate=content['plate']
     # need to provide license plate from front end
     data = {'username': 'cyft369',
-        'RegistrationNumber': 'YY07XHH'}
+        'RegistrationNumber': plate}
 
     # client = Client("http://www.regcheck.org.uk/api/reg.asmx?WSDL")
     # result = client.service.Check(data['RegistrationNumber'], data['username'])

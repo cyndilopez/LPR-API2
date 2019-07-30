@@ -4,6 +4,7 @@ import json
 import base64
 from config import OPENALPR_SECRET_KEY
 from keras.models import load_model
+OPENALPR_SECRET_KEY = 'sk_45a5804f6619b15dd88a84b4'
 
 CATEGORIES = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, 
                 'A': 9, 'B': 10, 'C': 11, 'D': 12, 'E': 13, 'F': 14, 'G': 15, 'H': 16, 
@@ -12,6 +13,7 @@ CATEGORIES = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9
                 'Z': 33}
 
 def clean_data_results(data):
+        print("in here")
         des_data = {
             'coordinates': data["coordinates"],
             'state': data["region"],
@@ -30,16 +32,18 @@ def verifySize(th, contour, img_height):
     minHeight = 30
     minAspect = 0.2
     maxAspect = aspect+aspect*error
+    max_char_to_plate_aspect = min_char_to_plate_aspect+min_char_to_plate_aspect*error
     if charAspect > minAspect and charAspect < maxAspect and (h/img_height)>=min_char_to_plate_aspect:       
         return True
     else:
         return False
 
 def return_data_openalpr(IMAGE_PATH):
-
+    print("in here")
     with open(IMAGE_PATH, 'rb') as image_file:
         img_base64 = base64.b64encode(image_file.read())
 
+    print(OPENALPR_SECRET_KEY)
     url = 'https://api.openalpr.com/v2/recognize_bytes?recognize_vehicle=1&country=us&secret_key=%s' % (OPENALPR_SECRET_KEY)
     r = requests.post(url, data = img_base64)
 
