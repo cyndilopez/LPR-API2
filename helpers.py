@@ -2,8 +2,9 @@ import cv2
 import requests
 import json
 import base64
-from config import OPENALPR_SECRET_KEY
+# from config import OPENALPR_SECRET_KEY
 from keras.models import load_model
+import config
 OPENALPR_SECRET_KEY = 'sk_45a5804f6619b15dd88a84b4'
 
 CATEGORIES = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, 
@@ -73,10 +74,7 @@ def clean_vehicle_info_data(data):
                 "car_model":data["CarModel"]["CurrentTextValue"],
                 "engine_size":data["EngineSize"]["CurrentTextValue"],
                 "body_style":data["BodyStyle"]["CurrentTextValue"],
-                "fuel_type":data["FuelType"]["CurrentTextValue"],
-                "color":data["Colour"],
-                "vehicle_identification_number":data["VehicleIdentificationNumber"],
-                "engine_number":data["EngineNumber"]
+                "vehicle_identification_number":data["VechileIdentificationNumber"],
         }
         return cleaned_data
 def fake_clean_data():
