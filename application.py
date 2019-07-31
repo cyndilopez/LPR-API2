@@ -11,6 +11,7 @@ import numpy as np
 from keras.preprocessing import image
 from zeep import Client
 import config
+import json
 
 application = Flask(__name__)
 
