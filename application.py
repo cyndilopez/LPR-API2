@@ -11,7 +11,6 @@ import numpy as np
 from keras.preprocessing import image
 from zeep import Client
 import config
-import json
 
 application = Flask(__name__)
 
@@ -116,7 +115,7 @@ def detect():
             "state": data_des["state"],
             "predicted": pred_plate}
 
-    return json.dumps(data)
+    return flask.jsonify(data)
 
 # @application.route("/predict")
 @application.route("/predict", methods=["POST"])
@@ -137,7 +136,7 @@ def predict():
     print(vehicleJson)
     cleaned_data = clean_vehicle_info_data(vehicleJson)
 
-    return json.dumps(cleaned_data)
+    return flask.jsonify(cleaned_data)
     # return flask.jsonify(clean_vehicle_info_data(fake_clean_data()))
 
 if __name__ == '__main__':
