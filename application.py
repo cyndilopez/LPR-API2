@@ -115,7 +115,7 @@ def detect():
             "state": data_des["state"],
             "predicted": pred_plate}
 
-    return flask.jsonify(data)
+    return json.dumps(data)
 
 # @application.route("/predict")
 @application.route("/predict", methods=["POST"])
@@ -136,7 +136,7 @@ def predict():
     print(vehicleJson)
     cleaned_data = clean_vehicle_info_data(vehicleJson)
 
-    return flask.jsonify(cleaned_data)
+    return json.dumps(cleaned_data)
     # return flask.jsonify(clean_vehicle_info_data(fake_clean_data()))
 
 if __name__ == '__main__':
